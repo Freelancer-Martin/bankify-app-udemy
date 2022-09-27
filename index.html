@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="style.css" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<header>
+    <div class="header-container" >
+        <div class="login-name col-4" >Log in to get started</div>
+        <img class="col-4" src="logo.png" >
+        <div class="login-buttons col-4">
+            <input id="userName" placeholder="user" >
+            <input id="userPin" placeholder="PIN" >
+            <button id="logInButton"><img class="right-arrow" src="right-arrow.png" ></button>
+        </div>
+
+    </div>
+
+</header>
+<div class="main-container hidden" >
+
+    <div class="withdraw-container col-6" >
+        <div class="current-balance">
+            <p>Current balance</p>
+            <a class="current-time" >As of 31/07/2020, 18:37</a>
+        </div>
+        <div class="money-movement-container"  >
+
+
+        </div>
+        <div class="account-notice " >
+            <a class="notice-text">IN :</a><a class="deposit-in green-notice-text" >27035,20 €</a>
+            <a class="notice-text">OUT :</a><a class="withdraw-in red-notice-text" >1082,61 €</a>
+            <a class="notice-text" >INTEREST :</a><a class="interest-in green-notice-text" >323,46<a> €</a></a>
+            <a class="notice-text sort">SORT</a>
+        </div>
+    </div>
+    <div class="bank-functions col-6" >
+        <p class="account-balance">25 952,59 €</p>
+        <div class="transfer-money" >
+            <h3>Transfer money</h3>
+            <form class="form" >
+                <input >
+                <input class="transfer-input" >
+                <button class="transfer-money-button"><img class="right-arrow" src="right-arrow.png" ></button>
+                <label>Tranfer to</label>
+                <label>Amount</label>
+            </form>
+        </div>
+        <div class="request-money" >
+            <h3>Request loan</h3>
+            <form class="form" >
+                <input class="request-input" >
+                <button class="request-loan-button" ><img class="right-arrow" src="right-arrow.png" ></button>
+                <label>Amount</label>
+            </form>
+        </div>
+        <div class="close-account" >
+            <h3>Close account</h3>
+            <form class="form" >
+                <input >
+                <input >
+                <button><img class="right-arrow" src="right-arrow.png" ></button>
+                <label>Confirm user</label>
+                <label>Confirm PIN</label>
+            </form>
+        </div>
+        <div class="login-notice " >
+            <a class="timestamp" >You will be logged out in 9:34</a>
+        </div>
+
+    </div>
+
+</div>
+
+
+</body>
+<script src="script.js" ></script>
+</html>
