@@ -28,67 +28,54 @@ function compareValues(key, order = 'asc') {
 
 
 
-let isLoggedIn = false;
+//let isLoggedIn = false;
 const userName = document.getElementById('userName');
 const userPin = document.getElementById('userPin');
 const logInButton = document.getElementById('logInButton');
 logInButton.addEventListener('click', checkLogIn);
-
-function checkLogIn()
-{
-    if( userName.value === 'js' || userPin.value === 1111 )
-    {
-        isLoggedIn = true;
-        document.querySelector('.main-container').classList.remove('hidden')
-    }
-
-}
+let currentAccount;
 
 
-    let transactions = [
-        {transactionType : 'deposit',
-            date : '12/03/2020',
-            amount : 1300
-        },
-        {transactionType : 'deposit',
-            date : '08/03/2020',
-            amount : 79.97
-        },
-        {transactionType : 'withdraw',
-            date : '12/23/2019',
-            amount : -133.90
-        },
-        {transactionType : 'withdraw',
-            date : '11/18/2019',
-            amount : -642.21
-        },
-        {transactionType : 'deposit',
-            date : '12/07/2019' ,
-            amount : 25000
-        },
-        {transactionType : 'withdraw',
-            date : '05/27/2019',
-            amount : -306.50
-        },
-        {transactionType : 'deposit',
-            date : '01/04/2019',
-            amount : 455.23
-        },
-        {transactionType : 'deposit',
-            date : '01/28/2019',
-            amount : 200
-        }
 
 
-    ];
+    const account1 = {
+        owner: 'Jonas Schmedtmann',
+        movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+        interestRate: 1.2, // %
+        pin: 1111,
+    };
 
+    const account2 = {
+        owner: 'Jessica Davis',
+        movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+        interestRate: 1.5,
+        pin: 2222,
+    };
+
+    const account3 = {
+        owner: 'Steven Thomas Williams',
+        movements: [200, -200, 340, -300, -20, 50, 400, -460],
+        interestRate: 0.7,
+        pin: 3333,
+    };
+
+    const account4 = {
+        owner: 'Sarah Smith',
+        movements: [430, 1000, 700, 50, 90],
+        interestRate: 1,
+        pin: 4444,
+    };
+
+    const accounts = [account1, account2, account3, account4];
     let Dates = new Date();
 
     const elContainer = document.querySelector('.money-movement-container');
     const transferMoneyBtn = document.querySelector('.transfer-money-button');
     const requestLoanBtn = document.querySelector('.request-loan-button');
+    const containerApp = document.querySelector('.main-container');
     document.querySelector('.current-time').textContent = `As of ${Dates.getDay()}/${Dates.getMonth()}/${Dates.getFullYear()}, ${Dates.toLocaleTimeString()}`
-    const sortElements = document.querySelector('.sort')
+    const sortElements = document.querySelector('.sort');
+    const closeAccountBtn = document.querySelector('.close-account-button');
 
 
 
@@ -96,65 +83,130 @@ function checkLogIn()
     transferMoneyBtn.addEventListener('click', transferMoney, false);
     requestLoanBtn.addEventListener('click', requestLoan, false);
     sortElements.addEventListener('click', sort, false);
+    closeAccountBtn.addEventListener('click', closeAccount, false);
 
-    function sort() {
-        transactions.sort(compareValues('transactionType', 'desc'));
-        displayMovements(transactions);
-        console.log('test');
+
+
+
+    function checkLogIn()
+    {
+        currentAccount = accounts.find(
+            acc => acc.username === userName.value
+        );
+        //console.log(currentAccount);
+        if (currentAccount?.pin === Number(userPin.value)) {
+            // Display UI and message
+            document.querySelector('.login-name').textContent = `Welcome back, ${
+                currentAccount.owner.split(' ')[0]
+            }`;
+            containerApp.classList. remove('hidden');
+
+            // Clear input fields
+            userName.value = userPin.value = '';
+            userPin.blur();
+
+            // Update UI
+            updateUI(currentAccount);
+        }
     }
 
     function transferMoney(event) {
 
-        const accountBalance = document.querySelector('.account-balance').textContent;
-        const transferInput = document.querySelector('.transfer-input').value;
-        const depositWithdrawContainer = document.querySelectorAll('.money-movement-container');
-        let Dates = new Date();
-
-        transactions.push({
-            transactionType: 'withdraw',
-            date: `${Dates.getDay()}/${Dates.getMonth()}/${Dates.getFullYear()}`,
-            amount: Number(-transferInput)
-        });
-        displayMovements({
-            transactionType: 'withdraw',
-            date: `${Dates.getDay()}/${Dates.getMonth()}/${Dates.getFullYear()}`,
-            amount: Number(-transferInput)
-        });
-        calculateDisplaySummary();
-
         event.preventDefault();
+        let transferUsername = document.querySelector('.transfer-input-name').value;
+        let transferInput = document.querySelector('.transfer-input').value;
+
+        const amount = Number(transferInput);
+        const recciverAccount = accounts.find(
+            acc => acc.username === transferUsername
+        );
+        transferUsername = transferInput = '';
+
+        if (
+            amount > 0 &&
+            recciverAccount &&
+            currentAccount.balance >= amount &&
+            recciverAccount?.username !== currentAccount.username
+        ) {
+            // Doing the transfer
+            currentAccount.movements.push(-amount);
+            recciverAccount.movements.push(amount);
+
+            // Update UI
+            updateUI(currentAccount);
+        }
+
+        console.log(  currentAccount.balance  );
+
+
+
 
 
     }
+
+    function closeAccount(event)
+    {
+        event.preventDefault();
+
+        const closeInputUsername = document.querySelector('.close-input-user');
+        const closeInputPin = document.querySelector('.close-input-pin');
+
+        if(closeInputUsername.value === currentAccount.username &&
+            Number(closeInputPin.value) === currentAccount.pin){
+            const index = accounts.findIndex( function (acc) {
+                   return  acc.username === currentAccount.username
+                    //console.log(acc);
+            }
+
+            );
+            console.log(index);
+            accounts.splice(index, 1)
+
+            containerApp.classList. add('hidden');
+
+        }
+
+
+        //console.log( Number(closeInputPin.value) === currentAccount.pin);
+    }
+
+    function sort() {
+        currentAccount.movements.sort();
+        displayMovements(currentAccount.movements);
+        console.log(currentAccount.movements);
+    }
+
+    const calcDisplayBalance = function (acc) {
+        let labelBalance = document.querySelector('.account-balance');
+        acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+        labelBalance.textContent = `${acc.balance}€`;
+    };
+
+
 
     function requestLoan(event) {
 
         let interestIn = document.querySelector('.interest-in').textContent;
-        const requestInput = document.querySelector('.request-input').value;
-        //const interestIn = document.querySelector('.interest-in');
-        let Dates = new Date();
-        let calcLoan = parseInt(interestIn) + (Number(requestInput) * 10 / 100);
-        document.querySelector('.interest-in').textContent = calcLoan;
-        console.log(parseInt(interestIn));
-        transactions.push({
-            transactionType: 'deposit',
-            date: `${Dates.getDay()}/${Dates.getMonth()}/${Dates.getFullYear()}`,
-            amount: Number(requestInput)
-        });
-        displayMovements({
-            transactionType: 'deposit',
-            date: `${Dates.getDay()}/${Dates.getMonth()}/${Dates.getFullYear()}`,
-            amount: Number(requestInput)
-        });
-        calculateDisplaySummary();
+        let requestInput = document.querySelector('.request-input').value;
+
 
         event.preventDefault();
 
+        const amount = Number(requestInput);
 
+        if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+            // Add movement
+            currentAccount.movements.push(amount);
+
+            // Update UI
+            updateUI(currentAccount);
+        }
+        requestInput = '';
     }
 
 
     function displayMovements(array) {
+
         if (Array.isArray(array)) {
             const elements = document.querySelectorAll('.deposit-withdraw-container');
             elements.forEach(function (element, index, array) {
@@ -162,67 +214,82 @@ function checkLogIn()
             });
         }
 
-        if (Array.isArray(array)) {
-            array.forEach(function (element, index, array) {
-                //if(element.amount !== transferInput) {
-                let elSwitch = element.transactionType === 'deposit' ? 'deposit' : 'withdraw';
-
-                const el = document.createElement('div');
-                el.classList.add('deposit-withdraw-container');
-                el.innerHTML += `<a class="left ${elSwitch}-notice"> ${elSwitch}</a>`;
-                el.innerHTML += `<a class="left"> ${element.date}</a>`;
-                el.innerHTML += `<a class="right"> ${element.amount}</a>`;
-                elContainer.appendChild(el);
-                //}
-
-            });
-        } else {
-            let elSwitch = array.transactionType === 'deposit' ? 'deposit' : 'withdraw';
+        array.forEach(function (element, index, array) {
+            let elSwitch = element >= 0 ? 'deposit' : 'withdraw';
             const el = document.createElement('div');
-
+            //console.log(element);
             el.classList.add('deposit-withdraw-container');
             el.innerHTML += `<a class="left ${elSwitch}-notice"> ${elSwitch}</a>`;
-            el.innerHTML += `<a class="left"> ${array.date}</a>`;
-            el.innerHTML += `<a class="right"> ${array.amount}</a>`;
+            el.innerHTML += `<a class="left"> ${index +1 }</a>`;
+            el.innerHTML += `<a class="right"> ${element}</a>`;
             elContainer.appendChild(el);
-        }
+        });
+
     }
 
-    displayMovements(transactions);
+    //displayMovements(account2.movements);
 
 
-
-
-    function calculateDisplaySummary() {
+    function calculateDisplaySummary(array) {
 
         let depositSum = 0;
         let WithdrawSum = 0;
-        transactions.forEach(function (element, index, array) {
-            if (element.transactionType === 'deposit') {
+        array.movements.forEach(function (element, index, array) {
+            if (element >= 0 ) {
 
-                depositSum = depositSum + element.amount;
+                depositSum = depositSum + element;
                 //console.log(element.amount);
+            } else {
+
+                    WithdrawSum = WithdrawSum + element;
             }
         });
+        //console.log(array.movements);
+        const interest = array.movements
+            .filter(mov => mov > 0)
+            .map(deposit => (deposit * array.interestRate) / 100)
+            .filter((int, i, arr) => {
+                // console.log(arr);
+                return int >= 1;
+            })
+            .reduce((acc, int) => acc + int, 0);
+        //console.log(array);
+        //console.log(interest);
 
-        transactions.forEach(function (element, index, array) {
-            if (element.transactionType === 'withdraw') {
-
-                WithdrawSum = WithdrawSum + element.amount;
-                //console.log(element.amount)
-            }
-
-        });
         let calcWithdrawSum = Math.abs(Math.round(WithdrawSum * 100) / 100).toFixed(2);
         //console.log(calcWithdrawSum);
-        document.querySelector('.deposit-in').textContent = depositSum;
+        document.querySelector('.deposit-in').textContent = depositSum - calcWithdrawSum;
         document.querySelector('.withdraw-in').textContent = calcWithdrawSum;
         document.querySelector('.account-balance').textContent = depositSum - calcWithdrawSum;
+        document.querySelector('.interest-in').textContent = interest;
 
 
     }
 
-    calculateDisplaySummary();
+
+
+
+    const createUsernames = function (accs) {
+        accs.forEach(function (acc) {
+            acc.username = acc.owner
+                .toLowerCase()
+                .split(' ')
+                .map(name => name[0])
+                .join('');
+        });
+    };
+    createUsernames(accounts);
+
+    const updateUI = function (array) {
+        // Display movements
+        displayMovements(array.movements);
+
+        // Display balance
+        calcDisplayBalance(array);
+
+        // Display summary
+        calculateDisplaySummary(array);
+    };
 
     function countdownTimer() {
         // Set the date we're counting down to
@@ -253,7 +320,7 @@ function checkLogIn()
             // If the count down is finished, write some text
             if (distance < 0) {
                 clearInterval(x);
-                document.querySelector(".timestamp").innerHTML = "EXPIRED";
+                containerApp.classList. add('hidden');
             }
         }, 10);
     }
